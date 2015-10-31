@@ -1,0 +1,63 @@
+(in-package :cs325-user)
+
+(defun map-range (fn start end)
+  (if (> start end)
+      (do ((i (1+ end) (1+ i))
+           (lst nil (cons (funcall fn i) lst)))
+          ((> i start) lst))
+  (do ((i (1- end) (1- i))
+       (lst nil (cons (funcall fn i) lst)))
+      ((< i start) lst))))
+
+(defun every-range (fn start end)
+  (if (> start end)
+      (do ((i (1+ end) (1+ i))
+           (valid-so-far t (funcall fn i))) 
+          ((or (> i start) (null valid-so-far)) valid-so-far))
+    (do ((i (1- end) (1- i))
+         (valid-so-far t (funcall fn i))) 
+        ((or (< i start) (null valid-so-far)) valid-so-far))))
+
+(defun find-range (fn start end)
+  (if (> start end)
+      (do ((i start (1- i))
+           (result nil (if (null (funcall fn i)) nil i)))
+          ((or (= i end) (not (null result))) result))
+    (do ((i start (1+ i))
+         (result nil (if (null (funcall fn i)) nil i)))
+        ((or (= i end) (not (null result))) result))))
+           
+
+#|
+; recursion
+(defun map-range (fn start end)
+  (cond ((> start end)
+         (cons (funcall fn start) (map-range fn (1- start) end)))
+        ((< start end)
+         (cons (funcall fn start) (map-range fn (1+ start) end)))
+        (t nil)))
+
+(defun every-range (fn start end)
+  (cond ((> start end)
+         (and (funcall fn start) (every-range fn (1- start) end)))
+        ((< start end)
+         (and (funcall fn start) (every-range fn (1+ start) end)))
+        (t t)))
+
+(defun find-range (fn start end)
+  (cond ((> start end)
+         (if (null (funcall fn start))
+             (find-range fn (1- start) end)
+           start))
+        ((< start end)
+         (if (null (funcall fn start))
+             (find-range fn (1+ start) end)
+           start))
+        (t nil)))
+|#
+
+(defun map-int (fn n)
+  (let ((acc nil))
+    (dotimes (i n)
+      (push (funcall fn i) acc))
+    (nreverse acc)))
